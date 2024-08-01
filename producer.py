@@ -16,8 +16,8 @@ class KafkaProducer:
         else:
             print('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             
-    def send_message(self, message):
-        self.producer.produce(self.topic, message.encode('utf-8'), callback=self.delivery_report)
+    def send_message(self, key, message):
+        self.producer.produce(self.topic, key=key.encode('utf-8'), value=message.encode('utf-8'), callback=self.delivery_report)
         self.producer.poll(0)
         
     def flush(self):
@@ -28,7 +28,9 @@ def main():
     
     for i in range(10):
         message = f"message {i}"
-        producer.send_message(message)
+        #key = f"key_{i % 2}" -> alternar entre duas chaves para demonstrar o particionamento
+        key = 'static_key'  #Usando uma chave para todas as mensagens
+        producer.send_message(message, key)
         
     producer.flush()
     
